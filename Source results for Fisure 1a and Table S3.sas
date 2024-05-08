@@ -1,4 +1,5 @@
-/* Sensitivity analysis with population weight included in the model, weight was derived by inverse probability weighting*/
+
+/* regression model for main results, Table 3*/
 LIBNAME ep 'C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024'; options nofmterr;
 data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
@@ -7,7 +8,6 @@ run;
 PROC reg data=chemical_diet_final_analysis;
 ods output ParameterEstimates=adjust_TEI&y;
 model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-weight wt;
 run;
 %mend;
 
@@ -111,7 +111,7 @@ data adjust_TEI;
 run;
 
 PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical.xlsx"
 DBMS=XLSX REPLACE;
 SHEET="adjust_TEI_aMed_noalc";
 RUN;
@@ -231,7 +231,7 @@ data adjust_TEI;
 run;
 
 PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical.xlsx"
 DBMS=XLSX REPLACE;
 SHEET="adjust_TEI_AHEI_noalc";
 RUN;
@@ -351,10 +351,11 @@ data adjust_TEI;
 run;
 
 PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical.xlsx"
 DBMS=XLSX REPLACE;
 SHEET="adjust_TEI_DASH";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
 run; quit;
+

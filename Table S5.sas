@@ -1,18 +1,15 @@
-/* Sensitivity analysis with geographical region (study site) included as random intercept*/
+
+/* sensitivity analysis with addtional adjustment for total lipids (Table S3), only for lipiphilic chemicals */
 LIBNAME ep 'C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024'; options nofmterr;
 data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
 run;
-
-%macro RunReg(y, x);
-  PROC GLIMMIX data=chemical_diet_final_analysis;
-    class SITE_ID_fm002 momrace	momBMI_group	momedu	income_groupnew	Cotinine_group;
-    model &y = &x energy momage	PA_Tot_v0 momrace	momBMI_group	momedu	income_groupnew	parity Cotinine_group/ solution ddfm=kr;
-    random intercept / subject=SITE_ID_fm002 type=un;
-    ods output ParameterEstimates=adjust_TEI&y;
-  run;
+%macro RunReg(y,x);
+PROC reg data=chemical_diet_final_analysis;
+ods output ParameterEstimates=adjust_lip_TEI&y;
+model &y=&x TotalLipid energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
+run;
 %mend;
-
 
 %RunReg(log_BetaHCH,aMed_noalc);
 %RunReg(log_GammaHCH,aMed_noalc);
@@ -76,47 +73,20 @@ run;
 %RunReg(log_PCB208,aMed_noalc);
 %RunReg(log_PCB206,aMed_noalc);
 %RunReg(log_PCB209,aMed_noalc);
-%RunReg(log_NMeFOSAA,aMed_noalc);
-%RunReg(log_PFDS,aMed_noalc);
-%RunReg(log_PFDoDA,aMed_noalc);
-%RunReg(log_PFHpA,aMed_noalc);
-%RunReg(log_PFHxS,aMed_noalc);
-%RunReg(log_PFOS,aMed_noalc);
-%RunReg(log_PFOA,aMed_noalc);
-%RunReg(log_PFNA,aMed_noalc);
-%RunReg(log_PFDA,aMed_noalc);
-%RunReg(log_PFUnDA,aMed_noalc);
-%RunReg(log_As,aMed_noalc);
-%RunReg(log_Ba,aMed_noalc);
-%RunReg(log_Cd,aMed_noalc);
-%RunReg(log_Co,aMed_noalc);
-%RunReg(log_Cr,aMed_noalc);
-%RunReg(log_Cs,aMed_noalc);
-%RunReg(log_Cu,aMed_noalc);
-%RunReg(log_Hg,aMed_noalc);
-%RunReg(log_Mn,aMed_noalc);
-%RunReg(log_Mo,aMed_noalc);
-%RunReg(log_Pb,aMed_noalc);
-%RunReg(log_Sb,aMed_noalc);
-%RunReg(log_Se,aMed_noalc);
-%RunReg(log_Sn,aMed_noalc);
-%RunReg(log_Tl,aMed_noalc);
-%RunReg(log_Zn,aMed_noalc);
+
 
 %RunReg(lg_totalocp,aMed_noalc);
 %RunReg(lg_totalbdes,aMed_noalc);
 %RunReg(lg_totalpcbs,aMed_noalc);
-%RunReg(lg_totalpfas,aMed_noalc);
-%RunReg(lg_totalmetals,aMed_noalc);
 
-data adjust_TEI;
- set adjust_TEI:;
+data adjust_lip_TEI;
+ set adjust_lip_TEI:;
 run;
 
-PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_CLINICALSITE.xlsx"
+PROC EXPORT DATA=adjust_lip_TEI
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical.xlsx"
 DBMS=XLSX REPLACE;
-SHEET="adjust_TEI_aMed_noalc";
+SHEET="adjust_lip_TEI_aMed_noalc";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
@@ -127,13 +97,11 @@ data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
 run;
 
-%macro RunReg(y, x);
-  PROC GLIMMIX data=chemical_diet_final_analysis;
-    class SITE_ID_fm002 momrace	momBMI_group	momedu	income_groupnew	Cotinine_group;
-    model &y = &x energy momage	PA_Tot_v0 momrace	momBMI_group	momedu	income_groupnew	parity Cotinine_group/ solution ddfm=kr;
-    random intercept / subject=SITE_ID_fm002 type=un;
-    ods output ParameterEstimates=adjust_TEI&y;
-  run;
+%macro RunReg(y,x);
+PROC reg data=chemical_diet_final_analysis;
+ods output ParameterEstimates=adjust_lip_TEI&y;
+model &y=&x TotalLipid energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
+run;
 %mend;
 
 %RunReg(log_BetaHCH,AHEI_noalc);
@@ -198,47 +166,19 @@ run;
 %RunReg(log_PCB208,AHEI_noalc);
 %RunReg(log_PCB206,AHEI_noalc);
 %RunReg(log_PCB209,AHEI_noalc);
-%RunReg(log_NMeFOSAA,AHEI_noalc);
-%RunReg(log_PFDS,AHEI_noalc);
-%RunReg(log_PFDoDA,AHEI_noalc);
-%RunReg(log_PFHpA,AHEI_noalc);
-%RunReg(log_PFHxS,AHEI_noalc);
-%RunReg(log_PFOS,AHEI_noalc);
-%RunReg(log_PFOA,AHEI_noalc);
-%RunReg(log_PFNA,AHEI_noalc);
-%RunReg(log_PFDA,AHEI_noalc);
-%RunReg(log_PFUnDA,AHEI_noalc);
-%RunReg(log_As,AHEI_noalc);
-%RunReg(log_Ba,AHEI_noalc);
-%RunReg(log_Cd,AHEI_noalc);
-%RunReg(log_Co,AHEI_noalc);
-%RunReg(log_Cr,AHEI_noalc);
-%RunReg(log_Cs,AHEI_noalc);
-%RunReg(log_Cu,AHEI_noalc);
-%RunReg(log_Hg,AHEI_noalc);
-%RunReg(log_Mn,AHEI_noalc);
-%RunReg(log_Mo,AHEI_noalc);
-%RunReg(log_Pb,AHEI_noalc);
-%RunReg(log_Sb,AHEI_noalc);
-%RunReg(log_Se,AHEI_noalc);
-%RunReg(log_Sn,AHEI_noalc);
-%RunReg(log_Tl,AHEI_noalc);
-%RunReg(log_Zn,AHEI_noalc);
 
 %RunReg(lg_totalocp,AHEI_noalc);
 %RunReg(lg_totalbdes,AHEI_noalc);
 %RunReg(lg_totalpcbs,AHEI_noalc);
-%RunReg(lg_totalpfas,AHEI_noalc);
-%RunReg(lg_totalmetals,AHEI_noalc);
 
-data adjust_TEI;
- set adjust_TEI:;
+data adjust_lip_TEI;
+ set adjust_lip_TEI:;
 run;
 
-PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_CLINICALSITE.xlsx"
+PROC EXPORT DATA=adjust_lip_TEI
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical.xlsx"
 DBMS=XLSX REPLACE;
-SHEET="adjust_TEI_AHEI_noalc";
+SHEET="adjust_lip_TEI_AHEI_noalc";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
@@ -249,15 +189,12 @@ data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
 run;
 
-%macro RunReg(y, x);
-  PROC GLIMMIX data=chemical_diet_final_analysis;
-    class SITE_ID_fm002 momrace	momBMI_group	momedu	income_groupnew	Cotinine_group;
-    model &y = &x energy momage	PA_Tot_v0 momrace	momBMI_group	momedu	income_groupnew	parity Cotinine_group/ solution ddfm=kr;
-    random intercept / subject=SITE_ID_fm002 type=un;
-    ods output ParameterEstimates=adjust_TEI&y;
-  run;
+%macro RunReg(y,x);
+PROC reg data=chemical_diet_final_analysis;
+ods output ParameterEstimates=adjust_lip_TEI&y;
+model &y=&x TotalLipid energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
+run;
 %mend;
-
 
 %RunReg(log_BetaHCH,DASH);
 %RunReg(log_GammaHCH,DASH);
@@ -321,47 +258,19 @@ run;
 %RunReg(log_PCB208,DASH);
 %RunReg(log_PCB206,DASH);
 %RunReg(log_PCB209,DASH);
-%RunReg(log_NMeFOSAA,DASH);
-%RunReg(log_PFDS,DASH);
-%RunReg(log_PFDoDA,DASH);
-%RunReg(log_PFHpA,DASH);
-%RunReg(log_PFHxS,DASH);
-%RunReg(log_PFOS,DASH);
-%RunReg(log_PFOA,DASH);
-%RunReg(log_PFNA,DASH);
-%RunReg(log_PFDA,DASH);
-%RunReg(log_PFUnDA,DASH);
-%RunReg(log_As,DASH);
-%RunReg(log_Ba,DASH);
-%RunReg(log_Cd,DASH);
-%RunReg(log_Co,DASH);
-%RunReg(log_Cr,DASH);
-%RunReg(log_Cs,DASH);
-%RunReg(log_Cu,DASH);
-%RunReg(log_Hg,DASH);
-%RunReg(log_Mn,DASH);
-%RunReg(log_Mo,DASH);
-%RunReg(log_Pb,DASH);
-%RunReg(log_Sb,DASH);
-%RunReg(log_Se,DASH);
-%RunReg(log_Sn,DASH);
-%RunReg(log_Tl,DASH);
-%RunReg(log_Zn,DASH);
 
 %RunReg(lg_totalocp,DASH);
 %RunReg(lg_totalbdes,DASH);
 %RunReg(lg_totalpcbs,DASH);
-%RunReg(lg_totalpfas,DASH);
-%RunReg(lg_totalmetals,DASH);
 
-data adjust_TEI;
- set adjust_TEI:;
+data adjust_lip_TEI;
+ set adjust_lip_TEI:;
 run;
 
-PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_CLINICALSITE.xlsx"
+PROC EXPORT DATA=adjust_lip_TEI
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical.xlsx"
 DBMS=XLSX REPLACE;
-SHEET="adjust_TEI_DASH";
+SHEET="adjust_lip_TEI_DASH";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
