@@ -1,15 +1,18 @@
-/* Sensitivity analysis with population weight included in the model, weight was derived by inverse probability weighting*/
+/* Sensitivity analysis with geographical region (study site) included as random intercept*/
 LIBNAME ep 'C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024'; options nofmterr;
 data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
 run;
-%macro RunReg(y,x);
-PROC reg data=chemical_diet_final_analysis;
-ods output ParameterEstimates=adjust_TEI&y;
-model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-weight wt;
-run;
+
+%macro RunReg(y, x);
+  PROC GLIMMIX data=chemical_diet_final_analysis;
+    class SITE_ID_fm002 momrace	momBMI_group	momedu	income_groupnew	Cotinine_group;
+    model &y = &x energy momage	PA_Tot_v0 momrace	momBMI_group	momedu	income_groupnew	parity Cotinine_group/ solution ddfm=kr;
+    random intercept / subject=SITE_ID_fm002 type=un;
+    ods output ParameterEstimates=adjust_TEI&y;
+  run;
 %mend;
+
 
 %RunReg(log_BetaHCH,aMed_noalc);
 %RunReg(log_GammaHCH,aMed_noalc);
@@ -111,7 +114,7 @@ data adjust_TEI;
 run;
 
 PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_CLINICALSITE.xlsx"
 DBMS=XLSX REPLACE;
 SHEET="adjust_TEI_aMed_noalc";
 RUN;
@@ -124,11 +127,13 @@ data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
 run;
 
-%macro RunReg(y,x);
-PROC reg data=chemical_diet_final_analysis;
-ods output ParameterEstimates=adjust_TEI&y;
-model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-run;
+%macro RunReg(y, x);
+  PROC GLIMMIX data=chemical_diet_final_analysis;
+    class SITE_ID_fm002 momrace	momBMI_group	momedu	income_groupnew	Cotinine_group;
+    model &y = &x energy momage	PA_Tot_v0 momrace	momBMI_group	momedu	income_groupnew	parity Cotinine_group/ solution ddfm=kr;
+    random intercept / subject=SITE_ID_fm002 type=un;
+    ods output ParameterEstimates=adjust_TEI&y;
+  run;
 %mend;
 
 %RunReg(log_BetaHCH,AHEI_noalc);
@@ -231,7 +236,7 @@ data adjust_TEI;
 run;
 
 PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_CLINICALSITE.xlsx"
 DBMS=XLSX REPLACE;
 SHEET="adjust_TEI_AHEI_noalc";
 RUN;
@@ -244,12 +249,15 @@ data chemical_diet_final_analysis;
 set ep.chemical_diet_final_analysis;
 run;
 
-%macro RunReg(y,x);
-PROC reg data=chemical_diet_final_analysis;
-ods output ParameterEstimates=adjust_TEI&y;
-model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-run;
+%macro RunReg(y, x);
+  PROC GLIMMIX data=chemical_diet_final_analysis;
+    class SITE_ID_fm002 momrace	momBMI_group	momedu	income_groupnew	Cotinine_group;
+    model &y = &x energy momage	PA_Tot_v0 momrace	momBMI_group	momedu	income_groupnew	parity Cotinine_group/ solution ddfm=kr;
+    random intercept / subject=SITE_ID_fm002 type=un;
+    ods output ParameterEstimates=adjust_TEI&y;
+  run;
 %mend;
+
 
 %RunReg(log_BetaHCH,DASH);
 %RunReg(log_GammaHCH,DASH);
@@ -351,7 +359,7 @@ data adjust_TEI;
 run;
 
 PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_CLINICALSITE.xlsx"
 DBMS=XLSX REPLACE;
 SHEET="adjust_TEI_DASH";
 RUN;

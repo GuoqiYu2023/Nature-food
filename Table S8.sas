@@ -1,14 +1,16 @@
-/* Sensitivity analysis with population weight included in the model, weight was derived by inverse probability weighting*/
+
+/* sensitivity analysis with addtional imputation for chemicals below LOD (Table S6) */
 LIBNAME ep 'C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024'; options nofmterr;
-data chemical_diet_final_analysis;
-set ep.chemical_diet_final_analysis;
-run;
+
 %macro RunReg(y,x);
-PROC reg data=chemical_diet_final_analysis;
-ods output ParameterEstimates=adjust_TEI&y;
-model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-weight wt;
-run;
+PROC genmod data=ep.chemical_diet_inpu;
+class momrace momBMI_group momedu income_groupnew parity Cotinine_group/param=reference ref=first;
+model &y=&x energy momage	PA_Tot_v0 momrace momBMI_group momedu income_groupnew parity	Cotinine_group/covb INFLUENCE;
+by _Imputation_;ods output ParameterEstimates=TEI&y;RUN;
+ods output ParameterEstimates=MED&y;
+proc mianalyze parms=TEI&y;
+   modeleffects aMed_noalc;
+RUN;
 %mend;
 
 %RunReg(log_BetaHCH,aMed_noalc);
@@ -100,35 +102,30 @@ run;
 %RunReg(log_Tl,aMed_noalc);
 %RunReg(log_Zn,aMed_noalc);
 
-%RunReg(lg_totalocp,aMed_noalc);
-%RunReg(lg_totalbdes,aMed_noalc);
-%RunReg(lg_totalpcbs,aMed_noalc);
-%RunReg(lg_totalpfas,aMed_noalc);
-%RunReg(lg_totalmetals,aMed_noalc);
-
-data adjust_TEI;
- set adjust_TEI:;
+data MED;
+ set MED:;
 run;
 
-PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+PROC EXPORT DATA=MED
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_impu.xlsx"
 DBMS=XLSX REPLACE;
-SHEET="adjust_TEI_aMed_noalc";
+SHEET="adjusted_aMed_noalc_TEI";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
 run; quit;
 
 LIBNAME ep 'C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024'; options nofmterr;
-data chemical_diet_final_analysis;
-set ep.chemical_diet_final_analysis;
-run;
 
 %macro RunReg(y,x);
-PROC reg data=chemical_diet_final_analysis;
-ods output ParameterEstimates=adjust_TEI&y;
-model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-run;
+PROC genmod data=ep.chemical_diet_inpu;
+class momrace momBMI_group momedu income_groupnew parity Cotinine_group/param=reference ref=first;
+model &y=&x energy momage	PA_Tot_v0 momrace momBMI_group momedu income_groupnew parity	Cotinine_group/covb INFLUENCE;
+by _Imputation_;ods output ParameterEstimates=TEI&y;RUN;
+ods output ParameterEstimates=HEI&y;
+proc mianalyze parms=TEI&y;
+   modeleffects AHEI_noalc;
+RUN;
 %mend;
 
 %RunReg(log_BetaHCH,AHEI_noalc);
@@ -220,35 +217,30 @@ run;
 %RunReg(log_Tl,AHEI_noalc);
 %RunReg(log_Zn,AHEI_noalc);
 
-%RunReg(lg_totalocp,AHEI_noalc);
-%RunReg(lg_totalbdes,AHEI_noalc);
-%RunReg(lg_totalpcbs,AHEI_noalc);
-%RunReg(lg_totalpfas,AHEI_noalc);
-%RunReg(lg_totalmetals,AHEI_noalc);
-
-data adjust_TEI;
- set adjust_TEI:;
+data HEI;
+ set HEI:;
 run;
 
-PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+PROC EXPORT DATA=HEI
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_impu.xlsx"
 DBMS=XLSX REPLACE;
-SHEET="adjust_TEI_AHEI_noalc";
+SHEET="adjusted_AHEI_noalc_TEI";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
 run; quit;
 
 LIBNAME ep 'C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024'; options nofmterr;
-data chemical_diet_final_analysis;
-set ep.chemical_diet_final_analysis;
-run;
 
 %macro RunReg(y,x);
-PROC reg data=chemical_diet_final_analysis;
-ods output ParameterEstimates=adjust_TEI&y;
-model &y=&x energy momage	PA_Tot_v0 momrace1 momrace2 momrace3 momBMI_group1 momBMI_group2 momedu1 momedu2 income_groupnew1 income_groupnew2 income_groupnew3 parity	Cotinine_group1 Cotinine_group2/TOL VIF COLLIN DW INFLUENCE;
-run;
+PROC genmod data=ep.chemical_diet_inpu;
+class momrace momBMI_group momedu income_groupnew parity Cotinine_group/param=reference ref=first;
+model &y=&x energy momage	PA_Tot_v0 momrace momBMI_group momedu income_groupnew parity	Cotinine_group/covb INFLUENCE;
+by _Imputation_;ods output ParameterEstimates=TEI&y;RUN;
+ods output ParameterEstimates=DASH&y;
+proc mianalyze parms=TEI&y;
+   modeleffects DASH;
+RUN;
 %mend;
 
 %RunReg(log_BetaHCH,DASH);
@@ -340,20 +332,14 @@ run;
 %RunReg(log_Tl,DASH);
 %RunReg(log_Zn,DASH);
 
-%RunReg(lg_totalocp,DASH);
-%RunReg(lg_totalbdes,DASH);
-%RunReg(lg_totalpcbs,DASH);
-%RunReg(lg_totalpfas,DASH);
-%RunReg(lg_totalmetals,DASH);
-
-data adjust_TEI;
- set adjust_TEI:;
+data DASH;
+ set DASH:;
 run;
 
-PROC EXPORT DATA=adjust_TEI
-OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_weighted.xlsx"
+PROC EXPORT DATA=DASH
+OUTFILE= "C:\nus_project\1st_nus_chemical_nutrition\formal_analysis\revision02202024\associationdp_chemical_impu.xlsx"
 DBMS=XLSX REPLACE;
-SHEET="adjust_TEI_DASH";
+SHEET="adjusted_DASH_TEI";
 RUN;
 
 proc datasets library=work nolist nodetails kill;
